@@ -1,4 +1,4 @@
-from groq import Groq
+import boto3
 from typing import List, Dict, Optional
 import json
 
@@ -6,7 +6,12 @@ from ..config import settings
 from .product_service import get_catalog_summary
 from .rag_service import query_relevant_products
 
-client = Groq(api_key=settings.groq_api_key)
+client = boto3.client(
+    "bedrock-runtime",
+    aws_access_key_id=settings.aws_access_key_id,
+    aws_secret_access_key=settings.aws_secret_access_key,
+    region_name=settings.aws_region
+)
 
 SYSTEM_PROMPT = """You are QuickBot, an AI shopping assistant for a quick commerce platform like Blinkit, Zepto, and Instamart in India.
 
@@ -98,29 +103,44 @@ def get_chat_response(
                 f"Default budget preference: ₹{budget}."
             )
 
-    messages = [
-        {
-            "role": "system",
-            "content": SYSTEM_PROMPT + profile_context + f"\n\nPRODUCT CATALOG (JSON):\n{catalog}",
-        }
-    ]
+    system_text = SYSTEM_PROMPT + profile_context + f"\n\nPRODUCT CATALOG (JSON):\n{catalog}"
+    system_prompts = [{"text": system_text}]
 
+    bedrock_messages = []
     # Include last 6 history messages (3 exchanges)
-    for h in history[-6:]:
-        messages.append({"role": h["role"], "content": h["content"]})
+    # Bedrock requires the conversation to start with a 'user' message
+    filtered_history = history[-6:]
+    if filtered_history and filtered_history[0].get("role") == "assistant":
+        filtered_history = filtered_history[1:]
+        
+    for h in filtered_history:
+        bedrock_messages.append({"role": h["role"], "content": [{"text": h["content"]}]})
 
-    messages.append({"role": "user", "content": message})
+    bedrock_messages.append({"role": "user", "content": [{"text": message}]})
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=messages,
-        temperature=0.3,
-        max_tokens=2048,
-        response_format={"type": "json_object"},
+    response = client.converse(
+        modelId="amazon.nova-micro-v1:0",
+        messages=bedrock_messages,
+        system=system_prompts,
+        inferenceConfig={
+            "temperature": 0.3,
+            "maxTokens": 2048
+        }
     )
 
-    content = response.choices[0].message.content
-    result = json.loads(content)
+    content = response['output']['message']['content'][0]['text']
+    
+    # Ensure clean JSON extraction in case of markdown blocks
+    content_str = content.strip()
+    if "```json" in content_str:
+        content_str = content_str.split("```json")[1].split("```")[0].strip()
+    elif "```" in content_str:
+        content_str = content_str.split("```")[1].split("```")[0].strip()
+        
+    try:
+        result = json.loads(content_str)
+    except json.JSONDecodeError:
+        result = {}
 
     # Ensure required fields exist
     result.setdefault("message", "Here are my recommendations for you!")
