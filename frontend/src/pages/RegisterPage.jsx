@@ -3,6 +3,21 @@ import { Link, useNavigate } from 'react-router-dom'
 import { User, Mail, Lock, Eye, EyeOff, Zap } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
+const InputField = ({ id, label, type = 'text', icon: Icon, value, onChange, placeholder, rightEl }) => (
+  <div>
+    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+    <div className="relative">
+      <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={17} />
+      <input
+        id={id} type={type} required value={value} onChange={onChange}
+        className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-green-500 bg-gray-50 focus:bg-white transition-all text-gray-900 text-sm"
+        placeholder={placeholder}
+      />
+      {rightEl}
+    </div>
+  </div>
+)
+
 export default function RegisterPage() {
   const navigate = useNavigate()
   const { register } = useAuth()
@@ -26,21 +41,6 @@ export default function RegisterPage() {
       setLoading(false)
     }
   }
-
-  const InputField = ({ id, label, type = 'text', icon: Icon, value, onChange, placeholder, rightEl }) => (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
-      <div className="relative">
-        <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={17} />
-        <input
-          id={id} type={type} required value={value} onChange={onChange}
-          className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-green-500 bg-gray-50 focus:bg-white transition-all text-gray-900 text-sm"
-          placeholder={placeholder}
-        />
-        {rightEl}
-      </div>
-    </div>
-  )
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(135deg, #0a0f0a 0%, #0d1f0d 50%, #0a0f0a 100%)' }}>

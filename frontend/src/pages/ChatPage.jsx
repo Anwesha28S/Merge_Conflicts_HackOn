@@ -92,7 +92,7 @@ export default function ChatPage() {
     } catch (err) {
       const errorMessage = {
         role: 'assistant',
-        content: 'Sorry, I encountered an issue fetching recommendations. Please make sure your GROQ_API_KEY is configured in the .env file and try again.',
+        content: 'Sorry, I encountered an issue fetching recommendations from AWS Bedrock. Please ensure you have requested model access in the AWS console.',
         timestamp: new Date().toISOString()
       }
       setMessages((prev) => [...prev, errorMessage])
