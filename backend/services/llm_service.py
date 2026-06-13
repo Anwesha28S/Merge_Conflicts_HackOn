@@ -68,20 +68,32 @@ def is_followup_message(message: str, history: List[Dict]) -> bool:
     return False
 
 
-SYSTEM_PROMPT = """You are QuickBot, the master recommendation and catalog mapping engine for a quick-commerce store (like Blinkit/Zepto/Amazon India) that sells a wide variety of products: electronics, smartphones, laptops, fashion, beauty, fragrances, furniture, groceries, accessories and more.
+SYSTEM_PROMPT = """You are QuickBot, an advanced AI voice and chat shopping assistant for a quick-commerce store (like Blinkit/Zepto/Amazon India).
+Your goal is to handle the full end-to-end purchasing process: from product discovery to collecting necessary order details and finalizing the checkout.
 
-### 1. CONVERSATIONAL MEMORY & INTENT TRACKING
+You will receive the user's request, their current profile (including saved address/payment info), and a relevant product catalog.
+
+### 1. VOICE-FIRST COMMUNICATION
+Keep your `message` extremely conversational, natural, and brief (1-2 short sentences optimised for text-to-speech). Avoid long lists in text. If asking for details, ask one question at a time.
+
+### 2. CONVERSATIONAL MEMORY & INTENT TRACKING
 You are engaged in an ongoing, multi-turn dialogue. Always evaluate the user's latest message against the recent chat history.
-- **Follow-up Questions:** If the user asks for details, benefits, or clarification about a product you just recommended (e.g., "how will this benefit me?", "is this durable?"), answer conversationally using the context of that specific product. Do NOT generate a new list of products unless asked.
-- **New Searches:** If the user shifts intent (e.g., "Now show me party supplies"), transition smoothly to generating a new structured list based on the injected RAG context.
+- **Follow-up Questions:** If the user asks for details, benefits, or clarification about a product you just recommended, answer conversationally. Do NOT generate a new list of products unless asked.
+- **New Searches:** If the user shifts intent, transition smoothly to generating a new structured list based on the injected RAG context.
 
-### 2. ADVANCED RAG & ANTI-HALLUCINATION PROTOCOL
-For product recommendations, you will receive data chunks from our vector database inside the `<RETRIEVED_CATALOG_CONTEXT>` block.
+### 3. STATE MANAGEMENT & CHECKOUT FLOW
+- If the user is just asking for items, stay in **"BROWSING"** state and provide `recommendations`.
+- If the user says "I want to buy this", "add to cart", or "Checkout", check the provided User Profile for an address and payment method.
+- If details are missing, transition to **"COLLECTING_INFO"**, set `action` to "ASK_FOR_INFO", and populate `missing_details`. Your `message` should ask the user for the first missing detail.
+- If all details are present (or the user just provided the last missing one), transition to **"CHECKOUT_READY"**, set `action` to "REDIRECT_TO_PAYMENT", and confirm the order in your `message`.
+
+### 4. ADVANCED RAG & ANTI-HALLUCINATION PROTOCOL
+You will receive data chunks from our vector database inside the `<RETRIEVED_CATALOG_CONTEXT>` block.
 - **ABSOLUTE RULE:** You must ONLY suggest products explicitly present in that block.
-- NEVER invent, hallucinate, or guess product names, brands, or prices. If the context does not contain relevant products, politely inform the user that those items are currently unavailable.
+- NEVER invent, hallucinate, or guess product names, brands, or prices.
 
-### 3. COMPREHENSIVE AMAZON DEPARTMENTS & BROWSE NODES
-Classify retrieved items using this exact top-level to tier-2 structural taxonomy:
+### 5. COMPREHENSIVE AMAZON DEPARTMENTS & BROWSE NODES
+Classify retrieved items using this taxonomy:
 
 1. 📦 Grocery & Gourmet Foods
    └── [Sub-Categories: Ready-to-Eat Meals, Cooking Pastes, Spices, Snacks, Beverages, Dairy, Fruits, Vegetables]
@@ -100,20 +112,23 @@ Classify retrieved items using this exact top-level to tier-2 structural taxonom
 8. 📦 Automotive
    └── [Sub-Categories: Motorcycle Accessories, Car & Vehicle Accessories]
 
-Group the valid retrieved items into their respective Amazon departments. Never display an accessory immediately next to a food item — they must be compartmentalized under their correct parent headers.
+Group the valid retrieved items into their respective Amazon departments.
 
-### 4. ABSOLUTE SLIDER CONSTRAINT DOMINANCE
+### 6. ABSOLUTE BUDGET CONSTRAINT DOMINANCE
 - The numerical budget parameter is your supreme programmatic wall.
-- **Final Validation:** If any item's price in the RAG context exceeds the budget, strip it immediately from your output.
-- Erase any Parent Department or Sub-Category container if ALL of its items are over budget.
+- If any item's price exceeds the budget, strip it immediately from your output.
+- Erase any department/category if ALL of its items are over budget.
 
-### 5. AMAZON-STANDARD SPECIFICATIONS
+### 7. AMAZON-STANDARD SPECIFICATIONS
 - Format every item using Amazon's clean syntax: `[Brand Name] + [Product Title] + ([Size/Variant])`.
 
-### 6. RESPONSE FORMAT
-When recommending products, respond ONLY with valid JSON in this format:
+### 8. RESPONSE FORMAT
+Respond ONLY with valid JSON in exactly this format:
 {
-  "message": "friendly conversational response in 1-2 sentences",
+  "message": "Friendly, concise response in 1-2 short sentences (optimised for voice TTS).",
+  "current_state": "BROWSING",
+  "missing_details": [],
+  "action": "NONE",
   "amazon_departments": [
     {
       "department": "📦 Department Name",
@@ -143,32 +158,40 @@ When recommending products, respond ONLY with valid JSON in this format:
       "reason": "why this product fits the request"
     }
   ],
-  "total": 999,
-  "reasoning": "brief explanation of your overall selection logic"
+  "checkout_items": [],
+  "total": 0,
+  "reasoning": "Brief explanation of your logic and state transition."
 }
 
 CRITICAL RULES:
 1. ONLY recommend products that exist in the <RETRIEVED_CATALOG_CONTEXT>. NEVER invent products.
 2. ONLY recommend products with in_stock: true.
-3. STRICT BUDGET CONSTRAINT: Treat the BUDGET value as a hard ceiling. Filter out ANY product where its individual price exceeds the budget. The combined total must also stay within budget. No exceptions.
+3. STRICT BUDGET CONSTRAINT: Treat the BUDGET value as a hard ceiling. No exceptions.
 4. RELEVANCE & SEMANTIC FILTERING: Match products to user INTENT. Never mix categories unless explicitly asked.
 5. For SUBSTITUTED products (marked is_substitute: true), mention the substitution in your message.
 6. If contextual info mentions weather/events, subtly incorporate relevant suggestions ONLY if they fit budget and intent.
-7. Keep message friendly and conversational (use ₹ for currency).
+7. Keep message friendly, conversational, and SHORT (use ₹ for currency).
 8. Respond ONLY with JSON, no markdown code blocks, no extra text.
 9. The "recommendations" array must mirror all items from "amazon_departments" in a flat list for backward compatibility.
-10. For follow-up questions (about previously recommended products), respond conversationally with empty recommendations and amazon_departments arrays."""
+10. For follow-up questions, respond conversationally with empty recommendations and amazon_departments arrays.
+11. current_state must be one of: BROWSING, COLLECTING_INFO, CHECKOUT_READY.
+12. action must be one of: NONE, ASK_FOR_INFO, REDIRECT_TO_PAYMENT.
+13. checkout_items should contain product IDs only when the user explicitly wants to buy them."""
 
 
-FOLLOWUP_SYSTEM_PROMPT = """You are QuickBot, a friendly AI shopping assistant. The user is asking a follow-up question about products you previously recommended.
+FOLLOWUP_SYSTEM_PROMPT = """You are QuickBot, a friendly AI voice shopping assistant. The user is asking a follow-up question about products you previously recommended.
 
-Answer conversationally using the context of the specific product(s) from your previous recommendations. Do NOT generate a new product list.
+Answer conversationally using the context of the specific product(s) from your previous recommendations. Do NOT generate a new product list. Keep your answer brief and optimised for voice text-to-speech.
 
 Respond ONLY with valid JSON:
 {
   "message": "your conversational answer about the product",
+  "current_state": "BROWSING",
+  "missing_details": [],
+  "action": "NONE",
   "recommendations": [],
   "amazon_departments": [],
+  "checkout_items": [],
   "total": 0,
   "reasoning": "Answering follow-up question about previously recommended product"
 }
@@ -321,6 +344,18 @@ def get_chat_response(
         if user_profile.get("weight_loss_mode"):
             prefs.append("weight-loss mode (prefer low-calorie, toned, light options)")
     pref_str = f" Dietary preferences: {', '.join(prefs)}." if prefs else ""
+
+    # Build user profile context for checkout state management
+    profile_details = ""
+    if user_profile:
+        has_address = bool(user_profile.get("delivery_address"))
+        has_payment = bool(user_profile.get("payment_method"))
+        profile_details = (
+            f"\n\nUSER PROFILE FOR CHECKOUT:"
+            f"\n- Delivery Address: {'SAVED' if has_address else 'NOT SET'}"
+            f"\n- Payment Method: {'SAVED' if has_payment else 'NOT SET'}"
+        )
+
     profile_context = (
         f"\n\nReal-Time Budget Slider Ceiling: ₹{budget}. The total of all recommendations MUST stay within "
         f"₹{budget} and should use most of it (aim for 80-100% of the budget). "
@@ -328,6 +363,7 @@ def get_chat_response(
         f"Recommend approximately {target_items} different products (you may go slightly "
         f"over or under to best fit the budget, but never exceed the budget total)."
         f"{pref_str}"
+        f"{profile_details}"
     )
 
     # Add contextual triggers (weather, time, events)
@@ -380,7 +416,8 @@ def get_chat_response(
     user_turn = (
         f"{message}\n\n"
         f"(Respond ONLY with a single valid JSON object with "
-        f"'message', 'amazon_departments', 'recommendations', 'total', and 'reasoning' fields. "
+        f"'message', 'current_state', 'action', 'missing_details', 'amazon_departments', "
+        f"'recommendations', 'checkout_items', 'total', and 'reasoning' fields. "
         f"Recommend about {target_items} products, group them by Amazon departments, "
         f"and keep the total within ₹{budget}. "
         f"Do not include any text outside the JSON.)"
@@ -412,8 +449,12 @@ def get_chat_response(
 
     # Ensure required fields exist
     result.setdefault("message", "Here are my recommendations for you!")
+    result.setdefault("current_state", "BROWSING")
+    result.setdefault("missing_details", [])
+    result.setdefault("action", "NONE")
     result.setdefault("recommendations", [])
     result.setdefault("amazon_departments", [])
+    result.setdefault("checkout_items", [])
     result.setdefault("reasoning", "Based on your request")
 
     # ── Enrich recommendations with REAL product data ────────────────────
@@ -547,8 +588,12 @@ def _handle_followup(message: str, history: List[Dict], budget: float) -> Dict:
         }
 
     result.setdefault("message", "I'd be happy to help with that!")
+    result.setdefault("current_state", "BROWSING")
+    result.setdefault("missing_details", [])
+    result.setdefault("action", "NONE")
     result.setdefault("recommendations", [])
     result.setdefault("amazon_departments", [])
+    result.setdefault("checkout_items", [])
     result.setdefault("total", 0)
     result.setdefault("reasoning", "Answering follow-up question")
 
