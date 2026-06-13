@@ -131,6 +131,11 @@ class ChatResponse(BaseModel):
     recommendations: List[RecommendedProduct]
     total: float
     reasoning: str
+    # Checkout state management
+    current_state: str = "BROWSING"          # BROWSING | COLLECTING_INFO | CHECKOUT_READY
+    missing_details: List[str] = []          # e.g. ["delivery_address", "payment_method"]
+    action: str = "NONE"                     # NONE | ASK_FOR_INFO | REDIRECT_TO_PAYMENT
+    checkout_items: List[str] = []           # Product IDs user wants to buy
     # Amazon department-grouped view
     amazon_departments: List[AmazonDepartment] = []
     # Existing feature fields
