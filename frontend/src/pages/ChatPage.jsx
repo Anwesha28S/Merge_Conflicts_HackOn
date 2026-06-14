@@ -14,7 +14,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Hello ${user?.username || 'there'}! 👋 I'm QuickBot, your quick commerce shopping buddy. What are we shopping for today?`,
+      content: `Hello ${user?.username || 'there'}! 👋 I'm Aria, your quick commerce shopping buddy. What are we shopping for today?`,
       timestamp: new Date().toISOString()
     }
   ])
@@ -77,7 +77,12 @@ export default function ChatPage() {
   }
 
   useEffect(() => {
-    scrollToBottom()
+    if (messages.length > 1) {
+      scrollToBottom()
+    } else {
+      // Scroll to the absolute top of the page when chat is fresh
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }, [messages])
 
   // Send message
@@ -97,8 +102,6 @@ export default function ChatPage() {
     setSending(true)
     setQuickReplies([])
 
-    // Prepare message history formatted for backend (role, content)
-    // Send only the text and roles to save bandwidth/context
     const chatHistory = messages.map((m) => ({
       role: m.role,
       content: m.content
@@ -134,19 +137,16 @@ export default function ChatPage() {
 
       setMessages((prev) => [...prev, botMessage])
 
-      // Update agent / checkout state
       setCheckout(data.checkout || null)
       setQuickReplies(data.quick_replies || [])
       if (data.recommendations && data.recommendations.length > 0) {
         setLastRecommendedIds(data.recommendations.map((r) => r.id))
       }
 
-      // Speak the response (Alexa-style)
       if (voiceEnabled && ttsSupported && data.speak !== false) {
         speak(data.message)
       }
 
-      // Drive the purchase flow: redirect to the payment portal
       if (data.action === 'REDIRECT_TO_PAYMENT' && data.order_id) {
         setTimeout(() => navigate(`/payment/${data.order_id}`), 1600)
       }
@@ -164,7 +164,6 @@ export default function ChatPage() {
     }
   }
 
-  // Pre-configured quick suggestions
   const suggestions = [
     { text: 'Movie night snacks under ₹300', emoji: '🍿' },
     { text: 'Healthy high-protein gym breakfast', emoji: '💪' },
@@ -178,18 +177,15 @@ export default function ChatPage() {
     setInput(text)
   }
 
-  // Buy Now from a product card — start the agent checkout for that single item
   const handleBuyNow = (product) => {
     if (!product?.id || sending) return
     handleSend(null, `I want to buy ${product.name}`, [product.id])
   }
 
-  // Tappable quick replies (also spoken-friendly)
   const handleQuickReply = (text) => {
     handleSend(null, text)
   }
 
-  // Toggle the mic on/off
   const toggleMic = () => {
     if (listening) {
       stopListening()
@@ -199,7 +195,6 @@ export default function ChatPage() {
     }
   }
 
-  // Save profile preferences, then fetch fresh recommendations that REFLECT the filters
   const handleSavePreferences = async () => {
     setPrefLoading(true)
     setPrefSuccess(false)
@@ -209,8 +204,6 @@ export default function ChatPage() {
       setPrefSuccess(true)
       setTimeout(() => setPrefSuccess(false), 2000)
 
-      // Build a NEW query that reflects the chosen filters (instead of replaying
-      // the previous message). Favourite categories + dietary mode + budget drive it.
       const favs = preferences.favorite_categories || []
       const dietBits = []
       if (preferences.is_vegan) dietBits.push('vegan')
@@ -226,7 +219,6 @@ export default function ChatPage() {
       } else {
         regenQuery = `Suggest some good items within my ₹${preferences.budget_preference} budget`
       }
-      // Reset checkout context so this is treated as a fresh recommendation request
       setCheckout(null)
       handleSend(null, regenQuery)
     } catch (err) {
@@ -247,45 +239,44 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50/50">
       <Header />
       <CartSidebar />
 
       {/* Main Container */}
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex gap-6 overflow-hidden h-[calc(100vh-64px)]">
-        
+
         {/* Left/Chat Column */}
-        <div className="flex-1 glass rounded-3xl flex flex-col overflow-hidden shadow-glass relative">
-          
+        <div className="flex-1 bg-white/90 backdrop-blur-xl rounded-3xl flex flex-col overflow-hidden shadow-xl border border-white/50 relative">
+
           {/* Top Info Bar */}
-          <div className="px-6 py-3 border-b border-gray-100 flex justify-between items-center bg-white z-10">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">QuickBot AI Assistant</span>
+          <div className="px-6 py-4 flex justify-between items-center bg-white z-10 shadow-sm border-b border-gray-50">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+              <span className="text-sm font-extrabold text-gray-700 uppercase tracking-widest">Ask Aria</span>
               {speaking && (
-                <span className="flex items-center gap-1 text-[10px] font-bold text-green-600 ml-1">
-                  <Volume2 size={12} className="animate-pulse" /> Speaking…
+                <span className="flex items-center gap-1.5 text-[11px] font-bold text-green-600 ml-2 bg-green-50 px-2 py-0.5 rounded-full">
+                  <Volume2 size={12} className="animate-pulse" /> Speaking
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {ttsSupported && (
                 <button
                   onClick={() => { setVoiceEnabled((v) => !v); stopSpeaking() }}
                   title={voiceEnabled ? 'Voice replies on' : 'Voice replies off'}
-                  className={`text-xs font-semibold flex items-center gap-1 transition-colors px-2 py-1 rounded-lg ${
-                    voiceEnabled ? 'text-green-700 bg-green-50 hover:bg-green-100' : 'text-gray-400 hover:bg-gray-50'
-                  }`}
+                  className={`text-xs font-semibold flex items-center gap-1.5 transition-all duration-300 px-2.5 py-1.5 rounded-lg ${voiceEnabled ? 'text-green-700 bg-green-50 hover:bg-green-100' : 'text-gray-400 hover:bg-gray-50'
+                    }`}
                 >
-                  {voiceEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+                  {voiceEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
                   <span className="hidden sm:inline">Voice</span>
                 </button>
               )}
               <button
                 onClick={clearChat}
-                className="text-xs text-gray-400 hover:text-red-500 font-semibold flex items-center gap-1 transition-colors px-2 py-1 hover:bg-red-50 rounded-lg"
+                className="text-xs text-gray-400 hover:text-red-500 font-semibold flex items-center gap-1.5 transition-all duration-300 px-2.5 py-1.5 hover:bg-red-50 rounded-lg"
               >
-                <Trash2 size={12} /> Clear Chat
+                <Trash2 size={14} /> Clear
               </button>
             </div>
           </div>
@@ -295,19 +286,16 @@ export default function ChatPage() {
             {messages.map((msg, i) => (
               <MessageBubble key={i} message={msg} onBuyNow={handleBuyNow} />
             ))}
-            
+
             {/* Thinking Indicator */}
             {sending && (
               <div className="flex gap-3 animate-fade-in justify-start">
-                <div className="w-8 h-8 bg-green-gradient rounded-xl flex items-center justify-center flex-shrink-0 shadow-green mt-1">
-                  <Zap size={13} className="text-white animate-pulse" fill="white" />
-                </div>
-                <div className="bg-white rounded-2xl rounded-tl-none px-5 py-4 shadow-card border border-gray-100 flex flex-col gap-2">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-green-700">
-                    <Sparkles size={12} className="animate-spin text-green-600" />
+                <div className="bg-white rounded-2xl rounded-tl-none px-5 py-4 shadow-sm border border-gray-100 flex flex-col gap-2 max-w-[80%]">
+                  <div className="flex items-center gap-2 text-xs font-bold text-green-700">
+                    <Sparkles size={14} className="animate-spin text-green-600" />
                     Analyzing catalog & compiling recommendations...
                   </div>
-                  <div className="loading-dots mt-1.5">
+                  <div className="loading-dots mt-1">
                     <span />
                     <span />
                     <span />
@@ -315,39 +303,78 @@ export default function ChatPage() {
                 </div>
               </div>
             )}
+
+            {/* Quick suggestions on empty context */}
+            {messages.length === 1 && (
+              <div className="mt-8 animate-fade-in space-y-8 pb-4">
+
+                {/* Scroll Down Button */}
+                <div className="flex justify-start">
+                  <button 
+                    onClick={scrollToBottom}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white text-gray-600 hover:text-green-700 hover:bg-green-50 rounded-xl font-bold text-sm transition-all duration-300 btn-press border border-gray-200 hover:border-green-200 shadow-sm"
+                  >
+                    Go down to give prompt <ArrowRight size={16} className="rotate-90" />
+                  </button>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Sparkles size={18} className="text-purple-500" /> Browse Categories
+                  </h4>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                      { name: 'Laptops', img: '/images/categories/laptops.png' },
+                      { name: 'Furniture', img: '/images/categories/furniture.png' },
+                      { name: 'Skin Care', img: '/images/categories/skincare.png' },
+                      { name: 'Groceries', img: '/images/categories/groceries.png' },
+                    ].map((cat, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSend(null, `Show me some ${cat.name}`)}
+                        className="relative h-32 rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 btn-press"
+                      >
+                        <img src={cat.img} alt={cat.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:from-black/90 transition-colors duration-300" />
+                        <span className="absolute bottom-3 left-3 text-white font-bold text-sm tracking-wide shadow-black drop-shadow-md">{cat.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Zap size={18} className="text-yellow-500" /> Quick Prompts
+                  </h4>
+                  <div className="flex flex-wrap gap-2.5">
+                    {suggestions.map((sug, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSuggestionClick(sug.text)}
+                        className="px-4 py-2.5 rounded-xl border border-gray-100 bg-white hover:bg-green-50/50 hover:border-green-200 hover:shadow-sm text-left text-sm font-medium text-gray-700 transition-all duration-300 flex items-center gap-2 group btn-press"
+                      >
+                        <span className="text-lg group-hover:scale-110 transition-transform duration-300">{sug.emoji}</span>
+                        <span>{sug.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick suggestions on empty or limited context */}
-          {messages.length === 1 && (
-            <div className="px-6 py-2 bg-white border-t border-gray-50">
-              <p className="text-xs font-bold text-gray-400 mb-2">Try asking for:</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {suggestions.map((sug, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSuggestionClick(sug.text)}
-                    className="p-2.5 rounded-xl border border-gray-100 bg-gray-50 hover:bg-green-50/50 hover:border-green-200 text-left text-xs font-semibold text-gray-700 transition-all flex items-center gap-2 group btn-press"
-                  >
-                    <span className="text-lg group-hover:scale-110 transition-transform">{sug.emoji}</span>
-                    <span className="truncate">{sug.text}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Bottom Chat Input Form */}
-          <form onSubmit={handleSend} className="p-4 border-t border-gray-100 bg-white">
-            {/* Quick replies (tappable + spoken-friendly) */}
+          <form onSubmit={handleSend} className="p-5 bg-white border-t border-gray-50 z-10">
             {quickReplies.length > 0 && !sending && (
-              <div className="flex flex-wrap gap-2 mb-3">
+              <div className="flex flex-wrap gap-2 mb-4">
                 {quickReplies.map((qr, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => handleQuickReply(qr)}
-                    className="px-3 py-1.5 rounded-full border border-green-200 bg-green-50 text-green-700 text-xs font-semibold hover:bg-green-100 transition-all btn-press"
+                    className="px-4 py-2 rounded-full border border-green-200 bg-green-50 text-green-700 text-xs font-bold hover:bg-green-100 hover:shadow-sm transition-all duration-300 btn-press"
                   >
                     {qr}
                   </button>
@@ -355,96 +382,111 @@ export default function ChatPage() {
               </div>
             )}
 
-            <div className="flex gap-3 bg-gray-50 rounded-2xl p-2 border border-gray-100 input-glow">
+            {/* Refined Input Area */}
+            <div className="flex gap-3 bg-white border border-gray-200 rounded-2xl p-1.5 shadow-sm hover:shadow-md transition-shadow duration-300">
               <input
                 id="chat-input"
                 type="text"
                 value={listening ? (interim || 'Listening…') : input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={sending || listening}
-                placeholder="Ask QuickBot, or say 'I want to buy this'…"
-                className="flex-1 bg-transparent px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+                placeholder="Ask Aria, or say 'I want to buy this'…"
+                className="flex-1 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
               />
               {sttSupported && (
                 <button
                   type="button"
                   onClick={toggleMic}
                   disabled={sending}
-                  title={listening ? 'Stop listening' : 'Speak to QuickBot'}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all btn-press flex-shrink-0 ${
-                    listening
-                      ? 'bg-red-500 text-white shadow-lg animate-pulse'
-                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                  }`}
+                  title={listening ? 'Stop listening' : 'Speak to Aria'}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 btn-press flex-shrink-0 ${listening
+                    ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                 >
-                  <Mic size={16} />
+                  <Mic size={18} />
                 </button>
               )}
               <button
                 id="chat-submit"
                 type="submit"
                 disabled={!input.trim() || sending}
-                className="w-10 h-10 bg-green-gradient text-white rounded-xl flex items-center justify-center shadow-green hover:opacity-90 disabled:opacity-50 transition-all btn-press flex-shrink-0"
+                className="w-11 h-11 bg-green-gradient text-white rounded-xl flex items-center justify-center shadow-green hover:opacity-90 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 transition-all duration-300 btn-press flex-shrink-0"
               >
-                <Send size={15} />
+                <Send size={18} />
               </button>
             </div>
-            <p className="text-[10px] text-gray-400 text-center mt-2">
+            <p className="text-[11px] text-gray-400 text-center mt-3 font-medium">
               {sttSupported
-                ? '🎙️ Tap the mic to shop hands-free — say "buy this" and QuickBot completes the order.'
-                : '🤖 QuickBot personalizes recommendations. Say "buy this" to start an order.'}
+                ? '🎙️ Tap the mic to shop hands-free — say "buy this" and Aria completes the order.'
+                : '🤖 Aria personalizes recommendations. Say "buy this" to start an order.'}
             </p>
           </form>
 
         </div>
 
         {/* Right Preferences Sidebar */}
-        <div className="hidden lg:block w-80 glass rounded-3xl p-6 shadow-glass overflow-y-auto">
-          <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-gray-100">
-            <Sliders size={18} className="text-green-600" />
-            <h3 className="font-bold text-gray-900 text-base">Shopping Assistant Filter</h3>
+        <div className="hidden lg:flex w-[340px] bg-gray-50 rounded-3xl flex-col overflow-hidden shadow-inner border border-gray-200/60">
+
+          <div className="px-6 py-5 bg-white border-b border-gray-100 flex items-center gap-3">
+            <Sliders size={20} className="text-green-600" />
+            <h3 className="font-extrabold text-gray-900 text-base">Shopping Filters</h3>
           </div>
 
-          <div className="space-y-6">
-            
-            {/* Diet Prefs */}
-            <div>
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-3">Dietary Mode</label>
-              <div className="space-y-2">
+          <div className="flex-1 overflow-y-auto p-5 space-y-5">
+
+            {/* Diet Prefs Card */}
+            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+              <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest block mb-4">Dietary Mode</label>
+              <div className="space-y-2.5">
                 {[
                   { key: 'is_vegetarian', label: '🌿 Vegetarian', desc: 'Exclude meat & fish' },
                   { key: 'is_vegan', label: '🌱 Vegan', desc: '100% plant-based items' },
                   { key: 'is_high_protein', label: '💪 High Protein', desc: 'Focus on fitness & gym food' },
-                  { key: 'weight_loss_mode', label: '⚖️ Weight Loss', desc: 'Prefer light, low-calorie, toned options' },
+                  { key: 'weight_loss_mode', label: '⚖️ Weight Loss', desc: 'Prefer light, low-calorie options' },
                 ].map((item) => (
                   <button
                     key={item.key}
                     onClick={() => setPreferences({ ...preferences, [item.key]: !preferences[item.key] })}
-                    className={`w-full p-3 rounded-2xl border text-left transition-all ${
-                      preferences[item.key]
-                        ? item.key === 'weight_loss_mode'
-                          ? 'bg-purple-50/70 border-purple-500 text-purple-800'
-                          : 'bg-green-50/70 border-green-500 text-green-800'
-                        : 'bg-white border-gray-100 hover:border-gray-200 text-gray-700'
-                    }`}
+                    className={`w-full p-3.5 rounded-xl border text-left transition-all duration-300 ${preferences[item.key]
+                      ? item.key === 'weight_loss_mode'
+                        ? 'bg-purple-50 border-purple-500 text-purple-800 shadow-[0_0_10px_rgba(168,85,247,0.1)]'
+                        : 'bg-green-50 border-green-500 text-green-800 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
+                      : 'bg-white border-gray-100 hover:border-gray-200 text-gray-700 hover:bg-gray-50/50'
+                      }`}
                   >
-                    <p className="font-semibold text-xs">{item.label}</p>
-                    <p className={`text-[10px] mt-0.5 ${
-                      preferences[item.key]
-                        ? item.key === 'weight_loss_mode' ? 'text-purple-600' : 'text-green-600'
-                        : 'text-gray-400'
-                    }`}>{item.desc}</p>
+                    <p className="font-bold text-xs">{item.label}</p>
+                    <p className={`text-[10px] mt-1 ${preferences[item.key]
+                      ? item.key === 'weight_loss_mode' ? 'text-purple-600' : 'text-green-600'
+                      : 'text-gray-400'
+                      }`}>{item.desc}</p>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Budget Pref */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Default Budget</label>
-                <span className="text-sm font-bold text-green-700">₹{preferences.budget_preference}</span>
+            {/* Budget Pref Card */}
+            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Default Budget</label>
+                <span className="text-sm font-extrabold text-green-700 bg-green-50 px-2 py-1 rounded-md">₹{preferences.budget_preference}</span>
               </div>
+
+              <div className="flex gap-2 mb-4">
+                {[500, 1000, 5000, 10000, 50000].map(val => (
+                  <button
+                    key={val}
+                    onClick={(e) => { e.preventDefault(); setPreferences({ ...preferences, budget_preference: val }) }}
+                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg border transition-all duration-300 ${preferences.budget_preference === val
+                        ? 'bg-green-500 border-green-500 text-white shadow-md shadow-green-500/20'
+                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                      }`}
+                  >
+                    ₹{val >= 1000 ? `${val / 1000}k` : val}
+                  </button>
+                ))}
+              </div>
+
               <input
                 id="pref-budget"
                 type="range"
@@ -455,16 +497,16 @@ export default function ChatPage() {
                 onChange={(e) => setPreferences({ ...preferences, budget_preference: parseInt(e.target.value) })}
                 className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600 focus:outline-none"
               />
-              <div className="flex justify-between text-[10px] text-gray-400 mt-1 font-medium">
+              <div className="flex justify-between text-[10px] text-gray-400 mt-2 font-semibold">
                 <span>₹500</span>
                 <span>₹2,00,000</span>
               </div>
             </div>
 
-            {/* Favorite Categories */}
-            <div>
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Favorite Categories</label>
-              <div className="grid grid-cols-2 gap-2">
+            {/* Favorite Categories Card */}
+            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+              <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest block mb-4">Favorite Categories</label>
+              <div className="flex flex-wrap gap-2">
                 {['Snacks', 'Beverages', 'Dairy', 'Breakfast', 'Fruits', 'Vegetables', 'Healthy', 'Instant', 'Bakery'].map((cat) => {
                   const isFav = preferences.favorite_categories?.includes(cat)
                   return (
@@ -476,11 +518,10 @@ export default function ChatPage() {
                           : [...(preferences.favorite_categories || []), cat]
                         setPreferences({ ...preferences, favorite_categories: next })
                       }}
-                      className={`py-1.5 px-2.5 text-xs font-semibold rounded-xl border text-center transition-all ${
-                        isFav
-                          ? 'bg-green-500 border-green-500 text-white shadow-sm'
-                          : 'bg-white border-gray-100 hover:border-gray-200 text-gray-600'
-                      }`}
+                      className={`py-1.5 px-3 text-[11px] font-bold rounded-full border transition-all duration-300 ${isFav
+                        ? 'bg-green-500 border-green-500 text-white shadow-md shadow-green-500/20'
+                        : 'bg-white border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50'
+                        }`}
                     >
                       {cat}
                     </button>
@@ -494,19 +535,19 @@ export default function ChatPage() {
               <button
                 onClick={handleSavePreferences}
                 disabled={prefLoading}
-                className="w-full py-3 bg-green-gradient text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5 hover:opacity-90 transition-all btn-press shadow-green"
+                className="w-full py-3.5 bg-green-gradient text-white text-sm font-bold rounded-2xl flex items-center justify-center gap-2 hover:opacity-90 hover:shadow-lg transition-all duration-300 btn-press shadow-green"
               >
                 {prefLoading ? 'Saving...' : prefSuccess ? 'Preferences Saved! ✓' : 'Save Preference Filters'}
               </button>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex gap-2">
-              <ShieldCheck size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
-              <p className="text-[10px] text-gray-400 leading-normal">
-                QuickBot uses weather, time of day, and your dietary preferences to personalize every recommendation. Try asking to cook a recipe!
+            <div className="bg-white rounded-2xl p-4 border border-green-100 shadow-sm flex gap-3 items-start">
+              <ShieldCheck size={18} className="text-green-600 flex-shrink-0 mt-0.5" />
+              <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
+                Aria uses weather, time of day, and your dietary preferences to personalize every recommendation. Try asking to cook a recipe!
               </p>
             </div>
-            
+
           </div>
         </div>
 

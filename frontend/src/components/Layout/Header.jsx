@@ -30,17 +30,13 @@ export default function Header() {
   }, [])
 
   return (
-    <header ref={headerRef} className="sticky top-0 z-40 px-3 pt-3">
-      <div className="max-w-7xl mx-auto glass rounded-2xl px-4 h-16 flex items-center justify-between gap-4">
+    <header ref={headerRef} className="sticky top-0 z-50 w-full glass border-b border-white/40 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/chat" className="flex items-center gap-2.5 flex-shrink-0 group">
-          <div className="relative w-10 h-10 bg-green-gradient rounded-xl flex items-center justify-center shadow-green group-hover:scale-105 transition-transform overflow-hidden btn-premium">
-            <Zap size={19} className="text-white relative z-10" fill="white" />
-            <div className="absolute inset-0 animate-glow-pulse rounded-xl" />
-          </div>
           <div className="hidden sm:block leading-tight">
-            <span className="text-xl font-bold gradient-text font-display tracking-tight">QuickBot</span>
-            <p className="text-[10px] text-gray-500 -mt-1 tracking-[0.18em] uppercase font-semibold">Premium AI Shopping</p>
+            <span className="text-xl font-bold gradient-text font-display tracking-tight">Amazon Now</span>
+            <p className="text-[10px] text-gray-500 -mt-1 tracking-[0.18em] uppercase font-semibold">Shopping Reimagined</p>
           </div>
         </Link>
 
@@ -52,11 +48,10 @@ export default function Header() {
               <Link
                 key={path}
                 to={path}
-                className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
-                  active
+                className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${active
                     ? 'bg-green-gradient text-white shadow-green'
                     : 'text-gray-600 hover:bg-white/70 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 <Icon size={16} />
                 <span className="hidden lg:block">{label}</span>

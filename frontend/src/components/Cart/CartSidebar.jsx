@@ -113,7 +113,7 @@ export default function CartSidebar() {
                 <ShoppingBag size={30} className="text-gray-300" />
               </div>
               <h3 className="font-semibold text-gray-500 text-lg">Cart is empty</h3>
-              <p className="text-gray-400 text-sm mt-1">Chat with QuickBot to add items!</p>
+              <p className="text-gray-400 text-sm mt-1">Chat with Aria to add items!</p>
               <button
                 onClick={() => setIsOpen(false)}
                 className="mt-5 px-5 py-2.5 bg-green-gradient text-white text-sm font-semibold rounded-xl shadow-green btn-press"

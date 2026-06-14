@@ -2,10 +2,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from config import settings
 
-# SQLite local database configuration
+# Database configuration (supports both SQLite and PostgreSQL)
+connect_args = {}
+if settings.database_url.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+
 engine = create_engine(
     settings.database_url,
-    connect_args={"check_same_thread": False},
+    connect_args=connect_args,
     echo=False  # Set to True for SQL query debugging
 )
 
@@ -32,6 +36,9 @@ def run_migrations():
     tables that already exist. This adds any missing columns via ALTER TABLE so an
     existing quickcommerce.db keeps working without being recreated.
     """
+    if not settings.database_url.startswith("sqlite"):
+        return  # Skip manual SQLite migrations for production Postgres; create_all handles fresh start
+
     from sqlalchemy import inspect, text
 
     inspector = inspect(engine)

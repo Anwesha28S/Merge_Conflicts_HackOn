@@ -34,7 +34,7 @@ function GroupLanding({ onCreated }) {
           <Users size={26} className="text-white" />
         </div>
         <h1 className="text-2xl font-bold text-gray-900">Group Cart</h1>
-        <p className="text-sm text-gray-500 mt-1">Shop together. Vote on items. Our AI resolves dietary conflicts so everyone's happy.</p>
+        <p className="text-sm text-gray-500 mt-1">Shop together. Vote on items. Your Assistant Aria resolves dietary conflicts so everyone's happy.</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
@@ -176,9 +176,8 @@ function GroupRoom({ code }) {
           <div className="flex -space-x-2">
             {data.members.map((m) => (
               <div key={m.id} title={`${m.display_name}${m.is_vegan ? ' (vegan)' : m.is_vegetarian ? ' (veg)' : ''}`}
-                className={`w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold ${
-                  m.is_vegan ? 'bg-green-600' : m.is_vegetarian ? 'bg-green-500' : 'bg-gray-500'
-                }`}>
+                className={`w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold ${m.is_vegan ? 'bg-green-600' : m.is_vegetarian ? 'bg-green-500' : 'bg-gray-500'
+                  }`}>
                 {m.display_name.charAt(0).toUpperCase()}
               </div>
             ))}
@@ -213,9 +212,8 @@ function GroupRoom({ code }) {
                   </div>
                   <button
                     onClick={() => vote(it.item_id)}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all btn-press ${
-                      it.voted_by_me ? 'bg-green-gradient text-white shadow-green' : 'bg-white border border-gray-200 text-gray-600'
-                    }`}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all btn-press ${it.voted_by_me ? 'bg-green-gradient text-white shadow-green' : 'bg-white border border-gray-200 text-gray-600'
+                      }`}
                   >
                     <ThumbsUp size={12} /> {it.vote_count}
                   </button>

@@ -12,6 +12,7 @@ import OrdersPage from './pages/OrdersPage'
 import MealPlannerPage from './pages/MealPlannerPage'
 import GroupCartPage from './pages/GroupCartPage'
 import PageTransition from './components/effects/PageTransition'
+import FloatingChat from './components/Layout/FloatingChat'
 
 function Spinner() {
   return (
@@ -21,7 +22,7 @@ function Spinner() {
           <div className="absolute inset-0 border-4 border-green-500/20 rounded-full" />
           <div className="absolute inset-0 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
         </div>
-        <p className="text-gray-500 font-medium font-display tracking-wide">Loading QuickBot…</p>
+        <p className="text-gray-500 font-medium font-display tracking-wide">Loading Aria…</p>
       </div>
     </div>
   )
@@ -67,6 +68,7 @@ export default function App() {
       <AuthProvider>
         <CartProvider>
           <AppRoutes />
+          <FloatingChat />
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

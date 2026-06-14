@@ -212,7 +212,7 @@ export default function OrdersPage() {
           <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
             <ShoppingBag size={40} className="text-gray-200 mx-auto mb-3" />
             <p className="text-gray-500 font-medium">No orders yet</p>
-            <p className="text-gray-400 text-sm mt-1">Start a conversation with QuickBot to shop!</p>
+            <p className="text-gray-400 text-sm mt-1">Start a conversation with Aria to shop!</p>
             <button onClick={() => navigate('/chat')} className="mt-5 px-5 py-2.5 bg-green-gradient text-white text-sm font-semibold rounded-xl shadow-green btn-press">
               Start Shopping
             </button>

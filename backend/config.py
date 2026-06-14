@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 1440
 
-    # Database Settings (Local SQLite only)
+    # Database Settings (Defaults to local SQLite, override with DATABASE_URL in production for AWS RDS)
     database_url: str = "sqlite:///./quickcommerce.db"
 
     # Environment flag

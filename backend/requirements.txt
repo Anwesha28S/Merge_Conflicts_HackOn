@@ -13,3 +13,5 @@ chromadb
 sentence-transformers
 requests
 python-dateutil
+
+psycopg2-binary

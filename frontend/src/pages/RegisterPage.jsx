@@ -63,7 +63,7 @@ export default function RegisterPage() {
             <div className="w-11 h-11 bg-green-gradient rounded-xl flex items-center justify-center shadow-glow-green">
               <Zap size={21} className="text-white" fill="white" />
             </div>
-            <span className="text-2xl font-bold gradient-text font-display">QuickBot</span>
+            <span className="text-2xl font-bold gradient-text font-display">Aria</span>
           </div>
 
           <div className="flex justify-center mb-3">

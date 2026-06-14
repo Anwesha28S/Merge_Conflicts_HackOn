@@ -109,7 +109,9 @@ export default function MealPlannerPage() {
         </p>
 
         {/* Controls */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4 mb-6">
+        <div className="glass rounded-3xl p-6 shadow-glass space-y-6 mb-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-white/40 pointer-events-none" />
+          <div className="relative z-10 space-y-5">
           <div>
             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Your Goal</label>
             <input
@@ -126,23 +128,61 @@ export default function MealPlannerPage() {
               ))}
             </div>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-8">
             <div className="flex-1">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Days: {days}</label>
-              <input type="range" min="1" max="7" value={days} onChange={(e) => setDays(parseInt(e.target.value))} className="w-full accent-green-600" />
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Plan Duration</label>
+                <span className="text-sm font-bold text-green-700">{days} Days</span>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                {[1, 3, 5, 7].map(val => (
+                  <button
+                    key={val}
+                    onClick={() => setDays(val)}
+                    className={`flex-1 py-1 text-[10px] font-bold rounded-md border transition-all ${
+                      days === val 
+                        ? 'bg-green-500 border-green-500 text-white shadow-sm'
+                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {val}d
+                  </button>
+                ))}
+              </div>
+              <input type="range" min="1" max="7" value={days} onChange={(e) => setDays(parseInt(e.target.value))} className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600 focus:outline-none" />
             </div>
+            
             <div className="flex-1">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Servings: {servings}</label>
-              <input type="range" min="1" max="8" value={servings} onChange={(e) => setServings(parseInt(e.target.value))} className="w-full accent-green-600" />
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Servings / Meal</label>
+                <span className="text-sm font-bold text-green-700">{servings} People</span>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                {[1, 2, 4, 6, 8].map(val => (
+                  <button
+                    key={val}
+                    onClick={() => setServings(val)}
+                    className={`flex-1 py-1 text-[10px] font-bold rounded-md border transition-all ${
+                      servings === val 
+                        ? 'bg-green-500 border-green-500 text-white shadow-sm'
+                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {val}p
+                  </button>
+                ))}
+              </div>
+              <input type="range" min="1" max="8" value={servings} onChange={(e) => setServings(parseInt(e.target.value))} className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600 focus:outline-none" />
             </div>
           </div>
           <button
             onClick={generate}
             disabled={loading}
-            className="w-full py-3 bg-green-gradient text-white text-sm font-bold rounded-2xl flex items-center justify-center gap-2 btn-press shadow-green disabled:opacity-60"
+            className="w-full py-3.5 bg-green-gradient text-white text-sm font-bold rounded-2xl flex items-center justify-center gap-2 btn-press shadow-green disabled:opacity-60"
           >
             {loading ? <><Loader2 size={16} className="animate-spin" /> Planning your week…</> : <><Sparkles size={16} /> Generate Meal Plan</>}
           </button>
+          </div>
         </div>
 
         {plan && (
@@ -187,7 +227,7 @@ export default function MealPlannerPage() {
 
             {/* Shopping list */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm sticky top-20">
+              <div className="glass rounded-3xl shadow-glass sticky top-20 overflow-hidden border border-white/40">
                 <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
                   <ShoppingCart size={16} className="text-green-600" />
                   <h3 className="font-bold text-gray-800 text-sm">Smart Shopping List</h3>

@@ -13,12 +13,7 @@ export default function MessageBubble({ message, onBuyNow }) {
 
   return (
     <div className={`flex gap-3 animate-fade-in ${isBot ? 'justify-start' : 'justify-end'}`}>
-      {/* Bot avatar */}
-      {isBot && (
-        <div className="w-8 h-8 bg-green-gradient rounded-xl flex items-center justify-center flex-shrink-0 shadow-green mt-1">
-          <Zap size={13} className="text-white" fill="white" />
-        </div>
-      )}
+      {/* Bot avatar removed */}
 
       <div className={`max-w-[85%] ${!isBot ? 'order-first' : ''}`}>
         {isBot ? (

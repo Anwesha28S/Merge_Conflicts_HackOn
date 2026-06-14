@@ -69,7 +69,7 @@ export default function LoginPage() {
               <Zap className="w-7 h-7 text-white" fill="white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white font-display tracking-tight">QuickBot</h1>
+              <h1 className="text-3xl font-bold text-white font-display tracking-tight">Aria</h1>
               <p className="text-green-400 text-xs font-semibold tracking-[0.2em] uppercase">Premium AI Shopping</p>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
               <div className="w-9 h-9 bg-green-gradient rounded-xl flex items-center justify-center">
                 <Zap size={18} className="text-white" fill="white" />
               </div>
-              <span className="text-xl font-bold gradient-text font-display">QuickBot</span>
+              <span className="text-xl font-bold gradient-text font-display">Aria</span>
             </div>
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold mb-4">

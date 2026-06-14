@@ -75,7 +75,7 @@ export default function AccountPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">My Account</h1>
         <p className="text-gray-500 text-sm mb-6">
-          Save your delivery address and payment method once — then just say "buy this" and QuickBot handles the rest.
+          Save your delivery address and payment method once — then just say "buy this" and Aria handles the rest.
         </p>
 
         {loading ? (
