@@ -9,12 +9,8 @@ def get_products_data() -> List[Dict]:
     return load_products()
 
 # Check if chromadb is available, otherwise use fallback search
-try:
-    import chromadb
-    from chromadb.utils import embedding_functions
-    CHROMA_AVAILABLE = True
-except ImportError:
-    CHROMA_AVAILABLE = False
+# Forced to False to prevent OOM errors on AWS Free Tier
+CHROMA_AVAILABLE = False
 
 _client: Optional[Any] = None
 _collection: Optional[Any] = None
