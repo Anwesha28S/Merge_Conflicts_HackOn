@@ -13,7 +13,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RDS-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-**Team Merge_Conflicts · HackOn Hackathon 2026**
+**Team Merge_Conflicts · Hack On Amazon Season 6, 2026**
 
 *Shopping becomes a conversation. Built for the next generation of commerce.*
 
@@ -52,7 +52,7 @@
 
 **Amazon Now** is a full-stack AI-powered conversational commerce platform where every shopping journey is driven by **Aria** — an intelligent AI shopping companion. Combining **natural language understanding**, **real-time contextual intelligence**, **game-theory price negotiation**, and **collaborative group shopping**, Amazon Now transforms everyday e-commerce into a seamless, intuitive, and deeply personalized experience.
 
-Built by **Team Merge_Conflicts** for the **HackOn Hackathon 2026**, Amazon Now demonstrates how conversational AI, semantic search, and contextual awareness can redefine how users discover, evaluate, and purchase products.
+Built by **Team Merge_Conflicts** for the **Hack On Amazon Season 6, 2026**, Amazon Now demonstrates how conversational AI, semantic search, and contextual awareness can redefine how users discover, evaluate, and purchase products.
 
 > **💡 Key Insight:** Users spend **60% of their shopping time** scrolling through search results. Amazon Now replaces keyword searches with natural conversations — *"I'm hosting a party tonight, what should I get?"* — and delivers curated, budget-aware, contextually relevant product bundles instantly.
 
@@ -1117,7 +1117,7 @@ Full meal plan generation with cross-meal ingredient deduplication and automatic
 
 **Team Merge_Conflicts**
 
-*HackOn Hackathon 2026*
+*Hack On Amazon Season 6, 2026*
 
 | Area | Contribution |
 |------|-------------|
@@ -1141,7 +1141,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 **🛒 Amazon Now** · *Shopping becomes a conversation*
 
-Built with ❤️ by [Team Merge_Conflicts](https://github.com/Aniruddha1406/India_Innovates_Merge_Conflicts) for HackOn 2026
+Built with ❤️ by [Team Merge_Conflicts](https://github.com/Aniruddha1406/India_Innovates_Merge_Conflicts) for Hack On Amazon Season 6, 2026
 
 *Conversational commerce, powered by AI.*
 
