@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         'Content-Type': req.headers['content-type'] || 'application/json',
       }
     };
-    
+
     // Forward the authorization token if it exists
     if (req.headers['authorization']) {
       fetchOptions.headers['Authorization'] = req.headers['authorization'];
@@ -23,12 +23,12 @@ export default async function handler(req, res) {
     // Call the AWS backend
     const response = await fetch(targetUrl, fetchOptions);
     const text = await response.text();
-    
+
     let data;
-    try { 
-      data = JSON.parse(text); 
-    } catch { 
-      data = { detail: text }; 
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { detail: text };
     }
 
     // Send the response back to the frontend

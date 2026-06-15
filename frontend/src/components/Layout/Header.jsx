@@ -54,7 +54,7 @@ export default function Header() {
   ]
 
   return (
-    <header ref={headerRef} className="sticky top-0 z-50 w-full glass border-b border-white/40 shadow-sm">
+    <header ref={headerRef} className="sticky top-0 z-50 w-full border-b glass border-white/40 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/chat" className="flex items-center gap-2.5 flex-shrink-0 group">
@@ -119,7 +119,7 @@ export default function Header() {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-72 glass rounded-2xl shadow-card-hover overflow-hidden animate-slide-up origin-top-right z-50">
+              <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-100 rounded-2xl shadow-card-hover overflow-hidden animate-slide-up origin-top-right z-50">
                 {/* Account header */}
                 <div className="px-4 py-3.5 bg-green-gradient text-white">
                   <div className="flex items-center gap-3">
