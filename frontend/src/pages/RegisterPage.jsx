@@ -63,7 +63,7 @@ export default function RegisterPage() {
             <div className="w-11 h-11 bg-green-gradient rounded-xl flex items-center justify-center shadow-glow-green">
               <Zap size={21} className="text-white" fill="white" />
             </div>
-            <span className="text-2xl font-bold gradient-text font-display">Aria</span>
+            <span className="text-2xl font-bold gradient-text font-display">Amazon Now</span>
           </div>
 
           <div className="flex justify-center mb-3">
@@ -72,7 +72,7 @@ export default function RegisterPage() {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-1 font-display">Create account</h2>
-          <p className="text-gray-500 text-sm text-center mb-6">Start your AI shopping journey today</p>
+          <p className="text-gray-500 text-sm text-center mb-6">Start your shopping journey today</p>
 
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">⚠️ {error}</div>

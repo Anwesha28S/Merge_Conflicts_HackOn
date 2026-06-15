@@ -69,8 +69,8 @@ export default function LoginPage() {
               <Zap className="w-7 h-7 text-white" fill="white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white font-display tracking-tight">Aria</h1>
-              <p className="text-green-400 text-xs font-semibold tracking-[0.2em] uppercase">Premium AI Shopping</p>
+              <h1 className="text-3xl font-bold text-white font-display tracking-tight">Amazon Now</h1>
+              <p className="text-green-400 text-xs font-semibold tracking-[0.2em] uppercase">Shopping Reimagined</p>
             </div>
           </div>
 
@@ -78,7 +78,7 @@ export default function LoginPage() {
             Shop by <span className="gradient-text-gold">intent</span>,<br />not by search.
           </h2>
           <p className="login-anim text-gray-400 text-base mb-10 leading-relaxed">
-            The world's first conversational commerce agent — it understands what you need, negotiates the price, and checks out for you.
+            Aria - The world's first conversational commerce agent — it understands what you need, negotiates the price, and checks out for you.
           </p>
 
           <div className="space-y-3.5 mb-10">
@@ -88,20 +88,6 @@ export default function LoginPage() {
                   <Check size={13} className="text-white" />
                 </div>
                 <p className="text-gray-200 text-sm">{f}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { emoji: '🎬', text: 'Movie night under ₹300' },
-              { emoji: '💪', text: 'High-protein gym pack' },
-              { emoji: '🤝', text: 'Negotiate a better deal' },
-              { emoji: '🥗', text: 'Healthy vegan options' },
-            ].map((q, i) => (
-              <div key={i} className="chip-anim glass-dark rounded-2xl p-3.5 flex items-center gap-2.5">
-                <span className="text-2xl">{q.emoji}</span>
-                <p className="text-gray-200 text-xs font-medium leading-tight">{q.text}</p>
               </div>
             ))}
           </div>
